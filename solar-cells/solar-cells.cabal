@@ -13,7 +13,7 @@ name:                solar-cells
 version:             0.1.0.0
 
 -- A short (one-line) description of the package.
-synopsis:            Flexible storage foundation for solar-kv instances
+synopsis:            Flexible storage foundation for solar-spot instances
 
 -- A longer description of the package.
 -- description:         
