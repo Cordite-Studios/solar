@@ -1,22 +1,35 @@
-module Solar.Data.KV where
+{-# LANGUAGE DeriveDataTypeable #-}
+module Solar.Data.KV
+    ( KVClass
+    , KVTime(..)
+    , KVLink(..)
+    , KVMeta(..)
+    , KV(..)
+    , KVIdentifier(..)
+    , KVNoCache(..)
+    , kvNoCache
+    )
+    where
 
 import Data.Text
-import Data.Time.Clock (UTCTime)
-import Data.Time.Format (formatTime)
+import Data.Time.Clock (UTCTime(..))
+import Data.Typeable
+import Data.Time.Format (formatTime, readsTime, ParseTime(..))
 import System.Locale (defaultTimeLocale)
 
 type KVClass c = c
+type KVTime    = UTCTime 
 
 data KVIdentifier n = KVIdentifier
     { namespace :: !n
     , key       :: !Text
-    } deriving (Show)
+    } deriving (Show, Read)
 
 data KVLink n r c = KVLink
     { linkIdentifier :: !(KVIdentifier n)
     , linkRelations  :: ![r]
     , linkClasses    :: ![KVClass c]
-    } deriving (Show)
+    } deriving (Show, Read)
 
 data KVMeta namespace relations classes = KVMeta
     { identifier   :: !(KVIdentifier namespace)
@@ -24,29 +37,17 @@ data KVMeta namespace relations classes = KVMeta
     , classes      :: ![KVClass classes]
     -- ^ The classifications 
     , relations    :: ![KVLink namespace relations classes]
-    , lastModified :: !UTCTime
+    , lastModified :: !KVTime
     , invalid      :: !Bool
-    }
-
-instance (Show a, Show b, Show c) => Show (KVMeta a b c) where
-    show (KVMeta a b c d e)=
-        "KVMeta {identifier = "
-        ++ show a
-        ++ ", classes = "
-        ++ show b
-        ++ ", relations = "
-        ++ show c
-        ++ ", lastModified = "
-        ++ t
-        ++ ", invalid = "
-        ++ show e
-        ++ "}"
-        where
-            t = formatTime defaultTimeLocale "%FT%T" d
-
+    } deriving (Show, Read)
 
 data KV namespace relations classes datas cache = KV
     { content       :: !(datas namespace relations classes)
     , meta          :: !(KVMeta namespace relations classes)
     , caches        :: !(Maybe (cache namespace relations classes))
-    }
+    } deriving (Show, Read)
+
+data KVNoCache n r c = KVNoCache deriving (Show, Read, Typeable, Eq, Ord)
+
+kvNoCache :: (Maybe (KVNoCache n r c))
+kvNoCache = Nothing

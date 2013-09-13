@@ -6,13 +6,15 @@ import Data.Time.Clock
 import Data.Text(pack)
 
 data Color = Red | Green | Blue | Yellow
-    deriving (Show)
+    deriving (Show, Read)
 data Vehicle = Car | Truck | Semi | Van
-    deriving (Show)
+    deriving (Show, Read)
 data Ponies = FlutterShy | TwilightSparkle | Rarity | AppleJack | PinkiePie | RainbowDash
-    deriving (Show)
+    deriving (Show, Read)
 
-data Forum n r = Forum r
+data Forum n r c = Forum r
+    deriving (Show)
+data ForumCache n r c = EmptyForumCache
     deriving (Show)
 
 time = unsafePerformIO $ getCurrentTime
