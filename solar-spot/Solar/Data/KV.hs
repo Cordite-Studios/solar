@@ -1,4 +1,3 @@
-{-# LANGUAGE RecordWildCards #-}
 module Solar.Data.KV where
 
 import Data.Text
