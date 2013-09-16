@@ -49,6 +49,7 @@ cabal-version:       >=1.10
 library
   -- Modules exported by the library.
   exposed-modules:     Solar.Data.KV
+                     , Solar.Data.Graph.Direction
                       
   
   -- Modules included in this library but not exported.

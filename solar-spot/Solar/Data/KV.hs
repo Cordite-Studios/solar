@@ -1,4 +1,5 @@
 {-# LANGUAGE DeriveDataTypeable #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 module Solar.Data.KV
     ( KVTime(..)
     , KVLink(..)
@@ -15,6 +16,7 @@ import Data.Time.Clock (UTCTime(..))
 import Data.Typeable
 import Data.Time.Format (formatTime, readsTime, ParseTime(..))
 import System.Locale (defaultTimeLocale)
+import Solar.Data.Graph.Direction
 
 type KVTime    = UTCTime 
 
@@ -23,7 +25,7 @@ data KVIdentifier n = KVIdentifier
     -- ^ Namespace enumeration for where this belongs
     , key       :: !Text
     -- ^ Textual name of the key that can be looked up
-    } deriving (Show, Read)
+    } deriving (Show, Read, Typeable)
 
 data KVLink n r c = KVLink
     { linkIdentifier :: !(KVIdentifier n)
@@ -32,20 +34,30 @@ data KVLink n r c = KVLink
     -- ^ Relation Enums that describe what it means
     , linkClasses    :: ![c]
     -- ^ Class Enums that describe what the entity is
-    } deriving (Show, Read)
+    , linkDirection  :: !KVDirection
+    -- ^ Stores the direction of this entity to the remote entity.
+    , linkAdded      :: !UTCTime
+    -- ^ When this link was added
+    , linkInvalid    :: !Bool
+    -- ^ Invalidation flag
+    } deriving (Show, Read, Typeable)
 
 data KVMeta namespace relations classes = KVMeta
-    { identifier   :: !(KVIdentifier namespace)
+    { identifier            :: !(KVIdentifier namespace)
     -- ^ Identifier for this entity
-    , classes      :: ![classes]
+    , classes               :: ![classes]
     -- ^ The classifications for this entity
-    , relations    :: ![KVLink namespace relations classes]
+    , relations             :: ![KVLink namespace relations classes]
     -- ^ Links that this entity has with others
-    , lastModified :: !KVTime
+    , lastModified          :: !KVTime
     -- ^ Modification date for the entire data element
-    , invalid      :: !Bool
+    , lastModifiedContent   :: !KVTime
+    -- ^ Content Modification Date
+    , createdAt             :: !KVTime
+    -- ^ When this entity was created
+    , invalid               :: !Bool
     -- ^ Invalidation flag
-    } deriving (Show, Read)
+    } deriving (Show, Read, Typeable)
 
 data KV namespace relations classes datas cache = KV
     { meta          :: !(KVMeta namespace relations classes)
@@ -65,3 +77,24 @@ data KVNoCache n r c = KVNoCache
 -- | Gives a typed 'Nothing' of 'KVNoCache'
 kvNoCache :: (Maybe (KVNoCache n r c))
 kvNoCache = Nothing
+
+-- Time for class implementations
+
+instance (Typeable a, Typeable b, Typeable c, Typeable3 d, Typeable3 e) =>
+    Typeable (KV a b c d e) where
+    typeOf _ =
+        typeOf namespace 
+        `mkAppTy`
+        typeOf relations
+        `mkAppTy`
+        typeOf classes
+        `mkAppTy`
+        typeOf datas
+        `mkAppTy`
+        typeOf cache
+        where   
+            namespace  = undefined :: a
+            relations  = undefined :: b
+            classes    = undefined :: c
+            datas      = undefined :: d a b c
+            cache      = undefined :: e a b c      
