@@ -8,6 +8,7 @@ module Solar.Data.KV
     , KVIdentifier(..)
     , KVNoCache(..)
     , kvNoCache
+    , KVDirection(..)
     )
     where
 
@@ -83,6 +84,8 @@ kvNoCache = Nothing
 instance (Typeable a, Typeable b, Typeable c, Typeable3 d, Typeable3 e) =>
     Typeable (KV a b c d e) where
     typeOf _ =
+        mkTyConApp (mkTyCon3 "solar-spot" "Solar.Data.KV" "KV") []
+        `mkAppTy`
         typeOf namespace 
         `mkAppTy`
         typeOf relations
