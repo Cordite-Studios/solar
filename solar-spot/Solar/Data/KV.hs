@@ -37,7 +37,7 @@ data KVLink n r c = KVLink
     -- ^ Class Enums that describe what the entity is
     , linkDirection  :: !KVDirection
     -- ^ Stores the direction of this entity to the remote entity.
-    , linkAdded      :: !UTCTime
+    , linkAdded      :: !KVTime
     -- ^ When this link was added
     , linkInvalid    :: !Bool
     -- ^ Invalidation flag
