@@ -63,6 +63,7 @@ library
                      , old-locale
                      , time
                      , text
+                     , syb
   
   -- Directories containing source files.
   -- hs-source-dirs:      

@@ -1,5 +1,8 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DefaultSignatures #-}
+
 module Solar.Data.KV
     ( KVTime(..)
     , KVLink(..)
@@ -15,6 +18,8 @@ module Solar.Data.KV
 import Data.Text
 import Data.Time.Clock (UTCTime(..))
 import Data.Typeable
+import Data.Generics as D
+import GHC.Generics as G
 import Data.Time.Format (formatTime, readsTime, ParseTime(..))
 import System.Locale (defaultTimeLocale)
 import Solar.Data.Graph.Direction
@@ -26,7 +31,7 @@ data KVIdentifier n = KVIdentifier
     -- ^ Namespace enumeration for where this belongs
     , key       :: !Text
     -- ^ Textual name of the key that can be looked up
-    } deriving (Show, Read, Typeable)
+    } deriving (Show, Read, Typeable, Data, G.Generic)
 
 data KVLink n r c = KVLink
     { linkIdentifier :: !(KVIdentifier n)
@@ -41,7 +46,7 @@ data KVLink n r c = KVLink
     -- ^ When this link was added
     , linkInvalid    :: !Bool
     -- ^ Invalidation flag
-    } deriving (Show, Read, Typeable)
+    } deriving (Show, Read, Typeable, Data, G.Generic)
 
 data KVMeta namespace relations classes = KVMeta
     { identifier            :: !(KVIdentifier namespace)
@@ -58,7 +63,7 @@ data KVMeta namespace relations classes = KVMeta
     -- ^ When this entity was created
     , invalid               :: !Bool
     -- ^ Invalidation flag
-    } deriving (Show, Read, Typeable)
+    } deriving (Show, Read, Typeable, Data, G.Generic)
 
 data KV namespace relations classes datas cache = KV
     { meta          :: !(KVMeta namespace relations classes)
@@ -69,11 +74,11 @@ data KV namespace relations classes datas cache = KV
     -- ^ Caches, optional, use 'kvNoCache' function or 'KVNoCache'
     -- data type if you don't plan for this entity to ever have
     -- caches.
-    } deriving (Show, Read)
+    } deriving (Show, Read, Data, G.Generic)
 
 -- | The "No Cache" data type, use 'kvNoCache' to provide a typed 'Nothing'
 data KVNoCache n r c = KVNoCache
-    deriving (Show, Read, Typeable, Eq, Ord)
+    deriving (Show, Read, Typeable, Eq, Ord, Data, G.Generic)
 
 -- | Gives a typed 'Nothing' of 'KVNoCache'
 kvNoCache :: (Maybe (KVNoCache n r c))
