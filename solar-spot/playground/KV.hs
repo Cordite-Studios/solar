@@ -1,6 +1,7 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DefaultSignatures #-}
+{-# LANGUAGE FlexibleContexts #-}
 module KV where
 
 import qualified Solar.Data.KV as K
@@ -10,7 +11,7 @@ import Data.Text(pack)
 import Data.Typeable
 import Data.Serialize as S
 import GHC.Generics as G
-import Solar.Data.KV.Generic
+import Solar.Data.KV.Cereal
 
 data Color = Red | Green | Blue | Yellow
     deriving (Show, Read, Typeable, Generic)
@@ -35,4 +36,3 @@ ident2 = K.KVIdentifier Blue (pack "Potatoes")
 arel = K.KVLink ident2 [Car, Van] [Rarity] K.In time False
 met = K.KVMeta ident [RainbowDash, FlutterShy] [arel] time time time False
 kv = K.KV met (Forum Truck) K.kvNoCache
-
