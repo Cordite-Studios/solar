@@ -17,7 +17,7 @@ data Color = Red | Green | Blue | Yellow
     deriving (Show, Read, Typeable, Generic)
 data Vehicle = Car | Truck | Semi | Van
     deriving (Show, Read, Typeable, Generic)
-data Ponies = FlutterShy | TwilightSparkle | Rarity | AppleJack | PinkiePie | RainbowDash
+data Ponies = Fluttershy | TwilightSparkle | Rarity | Applejack | PinkiePie | RainbowDash
     deriving (Show, Read, Typeable, Generic)
 
 data Forum n r c = Forum r
@@ -34,5 +34,5 @@ time = unsafePerformIO $ getCurrentTime
 ident = K.KVIdentifier Red (pack "Hai")
 ident2 = K.KVIdentifier Blue (pack "Potatoes")
 arel = K.KVLink ident2 [Car, Van] [Rarity] K.In time False
-met = K.KVMeta ident [RainbowDash, FlutterShy] [arel] time time time False
+met = K.KVMeta ident [RainbowDash, Fluttershy] [arel] time time time False
 kv = K.KV met (Forum Truck) K.kvNoCache
