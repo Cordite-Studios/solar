@@ -60,6 +60,7 @@ library
   -- Other library packages from which modules are imported.
   build-depends:       base >=4.6 && <4.7
                      , solar-spot >= 0.1 && < 0.2
+                     , data-default-class
   
   -- Directories containing source files.
   -- hs-source-dirs:      

@@ -11,6 +11,7 @@ module Solar.Data.KV
     , KVIdentifier(..)
     , KVNoCache(..)
     , kvNoCache
+    , invalidate
     , KVDirection(..)
     )
     where
@@ -83,6 +84,9 @@ data KVNoCache n r c = KVNoCache
 -- | Gives a typed 'Nothing' of 'KVNoCache'
 kvNoCache :: (Maybe (KVNoCache n r c))
 kvNoCache = Nothing
+
+invalidate :: KV n r c d c' -> KV n r c d c'
+invalidate kv = kv { meta = (meta kv) {invalid = True} }
 
 -- Time for class implementations
 
