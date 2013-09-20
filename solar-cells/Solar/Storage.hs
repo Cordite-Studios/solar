@@ -28,9 +28,10 @@ instance Default (KVStorage r n c d c') where
 put :: (Monad m) => KVStorage r n c d c' -> KV r n c d c' -> m ()
 put store kv = do
     kv' <- putPersistant store kv
-    -- ^ other storages may modify the kv, such as
+    -- ↑ other storages may modify the kv, such as
     -- riak, since it may resolve merge conflicts. 
     putCached store kv'
+{-# INLINABLE put #-}
 
 get :: (Monad m) => KVStorage r n c d c' -> KVIdentifier n -> m (Maybe (KV r n c d c'))
 get store i = do
@@ -41,6 +42,7 @@ get store i = do
             pkv <- getPersistant store i
             F.forM_ pkv (\v -> putCached store v)
             return pkv
+{-# INLINABLE get #-}
 
 del ::  (Monad m) => KVStorage r n c d c' -> KVIdentifier n -> m Bool
 del store i =
@@ -48,7 +50,9 @@ del store i =
     where
         p = delPersistant store i
         c = delCached store i
+{-# INLINABLE del #-}
 
 invalidate :: (Monad m) => KVStorage r n c d c' -> KVIdentifier n -> m ()
 invalidate store i =
     get store i >>= F.mapM_ (\v -> put store (K.invalidate v))
+{-# INLINABLE invalidate #-}

@@ -48,8 +48,7 @@ cabal-version:       >=1.10
 
 library
   -- Modules exported by the library.
-  exposed-modules:    Solar.Storage
-                    , Solar.Storage.Class  
+  exposed-modules:    Solar.Storage 
   
   -- Modules included in this library but not exported.
   -- other-modules:       
