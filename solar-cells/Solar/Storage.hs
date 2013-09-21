@@ -11,6 +11,7 @@ module Solar.Storage
     , Solar.Storage.invalidate
     -- * Helpers
     , noContext
+    , contextWrap
     )
 where
 
@@ -29,15 +30,15 @@ import qualified Data.Map      as Map
 -- pools.
 type Context = Map.Map T.TypeRep D.Dynamic
 
-data Storage r n c d c' = Storage
-    { getPersistant :: (Monad m) => Context -> KVIdentifier n -> m (Maybe (KV r n c d c', Context))
+data Storage n r c d c' = Storage
+    { getPersistant :: (Monad m) => Context -> KVIdentifier n -> m (Maybe (KV n r c d c', Context))
     -- ^ Given an identifier, provide a result from the
     -- persistant medium
-    , getCached     :: (Monad m) => Context -> KVIdentifier n -> m (Maybe (KV r n c d c', Context))
+    , getCached     :: (Monad m) => Context -> KVIdentifier n -> m (Maybe (KV n r c d c', Context))
     -- ^ Given an identifier, lookup in the cache the value
-    , putPersistant :: (Monad m) => Context -> KV r n c d c' ->  m (KV r n c d c', Context)
+    , putPersistant :: (Monad m) => Context -> KV n r c d c' ->  m (KV n r c d c', Context)
     -- ^ Put this content into the persistant medium
-    , putCached     :: (Monad m) => Context -> KV r n c d c' -> m ()
+    , putCached     :: (Monad m) => Context -> KV n r c d c' -> m ()
     -- ^ Put this content into the cache medium
     , delPersistant :: (Monad m) => Context -> KVIdentifier n -> m Bool
     -- ^ Permanently remove (not 'invalidate') the entity
@@ -46,7 +47,7 @@ data Storage r n c d c' = Storage
     -- ^ Clear this entry from the cache (not 'invalidate')
     }
 
-instance Default (Storage r n c d c') where
+instance Default (Storage n r c d c') where
     def = Storage
         { getPersistant = \_ _ -> return Nothing
         , getCached = \_ _ -> return Nothing
@@ -56,7 +57,7 @@ instance Default (Storage r n c d c') where
         , delCached = \_ _ -> return False
         }
 
-put :: (Monad m) => Context -> Storage r n c d c' -> KV r n c d c' -> m ()
+put :: (Monad m) => Context -> Storage n r c d c' -> KV n r c d c' -> m ()
 put c' store kv = do
     M.when (Map.size c' == 0) $ fail failMessage
     (kv', c) <- putPersistant store c' kv
@@ -65,7 +66,7 @@ put c' store kv = do
     putCached store (Map.union c c') kv'
 {-# INLINABLE put #-}
 
-get :: (Monad m) => Context -> Storage r n c d c' -> KVIdentifier n -> m (Maybe (KV r n c d c', Context))
+get :: (Monad m) => Context -> Storage n r c d c' -> KVIdentifier n -> m (Maybe (KV n r c d c', Context))
 get c' store i = do
     M.when (Map.size c' == 0) $ fail failMessage
     ckv <- getCached store c' i
@@ -77,7 +78,7 @@ get c' store i = do
             return pkv
 {-# INLINABLE get #-}
 
-del ::  (Monad m) => Context -> Storage r n c d c' -> KVIdentifier n -> m Bool
+del ::  (Monad m) => Context -> Storage n r c d c' -> KVIdentifier n -> m Bool
 del c store i =
     M.liftM or $ sequence [c', p]
     where
@@ -85,7 +86,7 @@ del c store i =
         c' = delCached store c i
 {-# INLINABLE del #-}
 
-invalidate :: (Monad m) => Context -> Storage r n c d c' -> KVIdentifier n -> m ()
+invalidate :: (Monad m) => Context -> Storage n r c d c' -> KVIdentifier n -> m ()
 invalidate c' store i =
     get c' store i >>= F.mapM_ (\(v, c) -> put (Map.union c c') store (K.invalidate v))
 {-# INLINABLE invalidate #-}
@@ -96,3 +97,22 @@ noContext = Map.empty
 
 failMessage = "Empty Context Provided, no possible outcome!"
 {-# INLINABLE failMessage #-}
+
+contextWrap' :: (T.Typeable k) => k -> Context -> (k -> a) -> a -> a
+contextWrap' k c f df =
+    case (Map.lookup key c) of
+        Nothing -> df
+        Just d ->
+            let path = D.fromDynamic d
+            in case path of
+                Nothing -> df
+                Just p -> f p
+    where
+        key = T.typeOf k
+contextWrap :: (T.Typeable k)
+            => Context -- ^ Context anticipated to have feature
+            -> (k -> a)
+            -- ^ Given a successful context, give this Action / Result
+            -> a -- ^ Default Action for failure
+            -> a -- ^ Final Action / Result
+contextWrap = contextWrap' undefined
