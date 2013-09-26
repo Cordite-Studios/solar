@@ -61,6 +61,7 @@ library
                      , solar-spot >= 0.1 && < 0.2
                      , data-default-class
                      , containers
+                     , transformers
   
   -- Directories containing source files.
   -- hs-source-dirs:      
