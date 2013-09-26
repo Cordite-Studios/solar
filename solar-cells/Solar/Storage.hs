@@ -12,6 +12,8 @@ module Solar.Storage
     -- * Helpers
     , noContext
     , contextWrap
+    , addToContext
+    , (~+=:)
     )
 where
 
@@ -94,6 +96,16 @@ invalidate c' store i =
 noContext :: Context
 noContext = Map.empty
 {-# INLINABLE noContext #-}
+
+addToContext :: (T.Typeable t) => Context -> t -> Context
+addToContext c t = Map.insert (T.typeOf t) (D.toDyn t) c
+{-# INLINABLE addToContext #-}
+
+infixl 7 ~+=:
+
+(~+=:) :: (T.Typeable t) => Context -> t -> Context
+c ~+=: t = addToContext c t
+{-# INLINABLE (~+=:) #-}
 
 failMessage = "Empty Context Provided, no possible outcome!"
 {-# INLINABLE failMessage #-}

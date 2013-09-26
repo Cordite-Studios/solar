@@ -16,7 +16,6 @@ import Solar.Data.KV.Cereal
 import Solar.Storage.FS as FS
 import Solar.Storage as St
 import Data.Map as Map
-import Data.Dynamic as D
 import qualified Data.ByteString.Lazy.UTF8 as U
 import Text.Read(readMaybe)
 import qualified Data.ByteString.Lazy as BL
@@ -67,4 +66,4 @@ fs = FSMethod
     }
 
 path = KFilePath "/tmp"
-cont = Map.insert (typeOf path) (toDyn path) noContext
+cont = noContext ~+=: path
