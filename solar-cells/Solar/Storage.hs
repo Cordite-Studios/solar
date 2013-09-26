@@ -8,7 +8,7 @@ module Solar.Storage
     , getS
     , putS
     , delS
-    , Solar.Storage.invalidate
+    , invalidateS
     -- * Helpers
     , noContext
     , contextWrap
@@ -89,10 +89,10 @@ delS store i =
 
 -- | Updates the record in the database to be invalid
 -- Must be of the right type to deserialize and reserialize properly
-invalidate :: (Monad m) => Storage n r c d c' -> KVIdentifier n -> StateT Context m ()
-invalidate store i =
+invalidateS :: (Monad m) => Storage n r c d c' -> KVIdentifier n -> StateT Context m ()
+invalidateS store i =
     getS store i >>= F.mapM_ (\v -> putS store (K.invalidate v))
-{-# INLINABLE invalidate #-}
+{-# INLINABLE invalidateS #-}
 
 -- | Empty context constant
 noContext :: Context
