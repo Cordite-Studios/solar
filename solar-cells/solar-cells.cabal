@@ -50,9 +50,9 @@ library
   -- Modules exported by the library.
   exposed-modules:    Solar.Storage
                     , Solar.Storage.Class
-                    , Solar.Storage.State
-                    , Solar.Storage.Types
                     , Solar.Storage.Context
+                    , Solar.Storage.Types
+                    
   
   -- Modules included in this library but not exported.
   -- other-modules:       
