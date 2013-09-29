@@ -2,6 +2,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE TypeFamilies #-}
 
 {- | Typeclass helpers for interacting with stored data.
 
@@ -16,6 +17,7 @@ module Solar.Storage.Class
     , putKV
     , delKV
     , delKVT
+    , runKV
     )
 where
 
@@ -23,9 +25,7 @@ where
 import           Solar.Data.KV as K
 import           Solar.Storage.Types
 import           Control.Monad.Trans.State as ST
-import           Control.Monad.Trans.Reader as RT
 import           Control.Monad.Trans.Class (lift)
-
 
 -- | Storage type class for how to operate given a context for a
 -- a specific storage type.
@@ -34,7 +34,8 @@ import           Control.Monad.Trans.Class (lift)
 class (Monad m) => StorageC n r c d c' m where
     -- | Puts the 'KV' into the storage, may merge
     -- and result in a different 'KV'.
-    putC :: Context
+    putC :: ()
+         => Context
          -> KV n r c d c' -- ^ Key-Value to store
          -> m (KV n r c d c', Context)
          -- ^ In case the 'KV' changed (like merging)
@@ -153,6 +154,15 @@ delKVT  :: (Monad m)
         => TaggedIdentifier n r c (d n r c) (c' n r c)
         -> StateT (a, Context) m (Bool)
 delKVT i = wrapKV i delCST
+
+runKV   :: (Monad m)
+        => a
+        -> Context
+        -> StateT (a, Context) m b
+        -> m (b, Context)
+runKV s c st = do
+    (v, (_, c')) <- runStateT st (s, c)
+    return (v, c')
 
 -- Instances 
 

@@ -10,7 +10,9 @@ import qualified Data.Map      as Map
 -- 
 -- It may also be used to store connections or
 -- pools.
-type Context = Map.Map T.TypeRep D.Dynamic
+newtype Context = Context {
+        unwrapContext :: Map.Map T.TypeRep D.Dynamic
+    }
 newtype TaggedIdentifier n r c d c' = TaggedIdentifier
     { untagIdentifier :: KVIdentifier n
     }

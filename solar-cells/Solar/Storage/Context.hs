@@ -1,23 +1,37 @@
+{-# OPTIONS_GHC -fno-warn-missing-signatures #-}
 module Solar.Storage.Context
-    ( noContext
+    ( Context(..) 
+    , noContext
     , addToContext
     , (~+=:)
+    -- * Context Wrappers
     , contextWrap
+    , contextWrap2
+    , contextWrap3
+    , contextWrap4
+    , contextWrap5
+    , contextWrap6
+    , contextWrap7
     , contextWrapS
+    , contextWrapS2
+    , contextWrapS3
+    , contextWrapS4
+    , contextWrapS5
+    , contextWrapS6
+    , contextWrapS7
     )
 where
 
 import Solar.Storage.Types
 import Control.Monad.Trans.State as ST
 
-import qualified Data.Typeable as T
 import qualified Data.Dynamic  as D
 import qualified Data.Map      as Map
 import qualified Data.Typeable as T
 
 -- | Empty context constant
 noContext :: Context
-noContext = Map.empty
+noContext = Context Map.empty
 {-# INLINABLE noContext #-}
 
 -- | Adds the type into the context IOap.
@@ -26,7 +40,7 @@ noContext = Map.empty
 -- same type twice will not preserve the old value of
 -- that type.
 addToContext :: (T.Typeable t) => Context -> t -> Context
-addToContext c t = Map.insert (T.typeOf t) (D.toDyn t) c
+addToContext c t = Context $ Map.insert (T.typeOf t) (D.toDyn t) (unwrapContext c)
 {-# INLINABLE addToContext #-}
 
 infixl 7 ~+=:
@@ -38,7 +52,7 @@ c ~+=: t = addToContext c t
 
 contextWrap' :: (T.Typeable k) => k -> Context -> (k -> a) -> a -> a
 contextWrap' k c f df =
-    case (Map.lookup key c) of
+    case (Map.lookup key (unwrapContext c)) of
         Nothing -> df
         Just d ->
             let path = D.fromDynamic d
@@ -58,10 +72,25 @@ contextWrap :: (T.Typeable k)
 contextWrap = contextWrap' undefined
 
 -- | Stateful version of 'contextWrap'
-contextWrapS :: (T.Typeable k)
-             => (k -> StateT Context IO a) -- ^ Action to take
-             -> StateT Context IO a -- ^ Default Action when context resolution fails
-             -> StateT Context IO a -- Resulting Action
+contextWrapS :: (T.Typeable k, Monad m)
+             => (k -> StateT Context m a) -- ^ Action to take
+             -> StateT Context m a -- ^ Default Action when context resolution fails
+             -> StateT Context m a -- Resulting Action
 contextWrapS action defAction = do
     c <- get
     contextWrap c action defAction
+
+
+contextWrap2 c f d = contextWrap c (\v -> contextWrap  c (f v) d) d
+contextWrap3 c f d = contextWrap c (\v -> contextWrap2 c (f v) d) d
+contextWrap4 c f d = contextWrap c (\v -> contextWrap3 c (f v) d) d
+contextWrap5 c f d = contextWrap c (\v -> contextWrap4 c (f v) d) d
+contextWrap6 c f d = contextWrap c (\v -> contextWrap5 c (f v) d) d
+contextWrap7 c f d = contextWrap c (\v -> contextWrap6 c (f v) d) d
+
+contextWrapS2 f d = contextWrapS (\v -> contextWrapS  (f v) d) d
+contextWrapS3 f d = contextWrapS (\v -> contextWrapS2 (f v) d) d
+contextWrapS4 f d = contextWrapS (\v -> contextWrapS3 (f v) d) d
+contextWrapS5 f d = contextWrapS (\v -> contextWrapS4 (f v) d) d
+contextWrapS6 f d = contextWrapS (\v -> contextWrapS5 (f v) d) d
+contextWrapS7 f d = contextWrapS (\v -> contextWrapS6 (f v) d) d
