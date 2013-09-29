@@ -1,3 +1,4 @@
+{-# OPTIONS_GHC -fno-warn-orphans #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE DeriveGeneric #-}
@@ -6,8 +7,7 @@ module Solar.Data.KV.Cereal (CerealKV(..)) where
 import GHC.Generics as G
 import Data.Serialize as S
 import Solar.Data.KV
-import Solar.Data.Graph.Direction
-import Solar.Data.Cereal
+import Solar.Data.Cereal()
 
 instance Serialize KVDirection where
 instance (Serialize n) => Serialize (KVIdentifier n) where

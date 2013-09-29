@@ -1,6 +1,7 @@
+{-# OPTIONS_GHC -fno-warn-orphans #-}
 module Solar.Data.Cereal where
 
-import GHC.Generics as G
+
 import Data.Serialize as S
 import Data.Time.Clock
 import Data.Time.Calendar
