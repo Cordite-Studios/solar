@@ -23,12 +23,9 @@ where
 import Solar.Storage.Context
 import Solar.Storage.Types
 import Data.Typeable as T
-import Data.Dynamic  as D
-import Data.Map      as M
 import Solar.Data.KV as K
 import qualified Data.ByteString.Lazy as BL
 import Data.Text as TX
-import Control.Applicative((<*>),(<$>), pure)
 import Control.Exception(catch, IOException)
 import System.Directory(createDirectoryIfMissing, removeFile)
 
@@ -70,7 +67,7 @@ getFS c i =
                 return (fsRead s v, c)
                 ) ex
         ex :: IOException -> IO (Maybe z, Context)
-        ex e = return (Nothing, c)
+        ex _ = return (Nothing, c)
 
 -- | Saves the 'KV' to disk
 putFS :: (Show n, FSSettings n r c d c' a, ?s :: a)
