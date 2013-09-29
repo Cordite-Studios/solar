@@ -4,7 +4,7 @@
 {-# LANGUAGE DefaultSignatures #-}
 
 module Solar.Data.KV
-    ( KVTime(..)
+    ( KVTime
     , KVLink(..)
     , KVMeta(..)
     , KV(..)
@@ -21,8 +21,8 @@ import Data.Time.Clock (UTCTime(..))
 import Data.Typeable
 import Data.Generics as D
 import GHC.Generics as G
-import Data.Time.Format (formatTime, readsTime, ParseTime(..))
-import System.Locale (defaultTimeLocale)
+import Data.Time.Format()
+-- ↑ Import for the side effect of time read
 import Solar.Data.Graph.Direction
 
 type KVTime    = UTCTime 
@@ -95,18 +95,18 @@ instance (Typeable a, Typeable b, Typeable c, Typeable3 d, Typeable3 e) =>
     typeOf _ =
         mkTyConApp (mkTyCon3 "solar-spot" "Solar.Data.KV" "KV") []
         `mkAppTy`
-        typeOf namespace 
+        typeOf ns
         `mkAppTy`
-        typeOf relations
+        typeOf rs
         `mkAppTy`
-        typeOf classes
+        typeOf cs
         `mkAppTy`
-        typeOf datas
+        typeOf ds
         `mkAppTy`
-        typeOf cache
+        typeOf cas
         where   
-            namespace  = undefined :: a
-            relations  = undefined :: b
-            classes    = undefined :: c
-            datas      = undefined :: d a b c
-            cache      = undefined :: e a b c      
+            ns  = undefined :: a
+            rs  = undefined :: b
+            cs  = undefined :: c
+            ds  = undefined :: d a b c
+            cas = undefined :: e a b c      
