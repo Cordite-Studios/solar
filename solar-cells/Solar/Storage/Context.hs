@@ -22,12 +22,14 @@ module Solar.Storage.Context
     )
 where
 
-import Solar.Storage.Types
-import Control.Monad.Trans.State as ST
+import           Solar.Storage.Types
+import           Control.Monad.Trans.RWS as R
+import           Data.Monoid(Monoid(..))
 
 import qualified Data.Dynamic  as D
 import qualified Data.Map      as Map
 import qualified Data.Typeable as T
+
 
 -- | Empty context constant
 noContext :: Context
@@ -72,10 +74,10 @@ contextWrap :: (T.Typeable k)
 contextWrap = contextWrap' undefined
 
 -- | Stateful version of 'contextWrap'
-contextWrapS :: (T.Typeable k, Monad m)
-             => (k -> StateT Context m a) -- ^ Action to take
-             -> StateT Context m a -- ^ Default Action when context resolution fails
-             -> StateT Context m a -- Resulting Action
+contextWrapS :: (T.Typeable k, Monad m, Monoid b)
+             => (k -> RWST a b Context m z) -- ^ Action to take
+             -> RWST a b Context m z -- ^ Default Action when context resolution fails
+             -> RWST a b Context m z -- Resulting Action
 contextWrapS action defAction = do
     c <- get
     contextWrap c action defAction

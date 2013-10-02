@@ -1,3 +1,6 @@
+{- |
+Has the types which are used in this library
+-}
 module Solar.Storage.Types where
 
 import qualified Data.Typeable as T
