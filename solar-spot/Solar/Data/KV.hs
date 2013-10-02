@@ -13,6 +13,7 @@ module Solar.Data.KV
     , kvNoCache
     , invalidate
     , KVDirection(..)
+    , TaggedIdentifier(..)
     )
     where
 
@@ -81,9 +82,14 @@ data KV namespace relations classes datas cache = KV
 data KVNoCache n r c = KVNoCache
     deriving (Show, Read, Typeable, Eq, Ord, Data, G.Generic)
 
+newtype TaggedIdentifier n r c d c' = TaggedIdentifier
+    { untagIdentifier :: KVIdentifier n
+    }
+
 -- | Gives a typed 'Nothing' of 'KVNoCache'
 kvNoCache :: (Maybe (KVNoCache n r c))
 kvNoCache = Nothing
+
 
 invalidate :: KV n r c d c' -> KV n r c d c'
 invalidate kv = kv { meta = (meta kv) {invalid = True} }

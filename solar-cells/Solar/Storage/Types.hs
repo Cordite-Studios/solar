@@ -1,6 +1,5 @@
 module Solar.Storage.Types where
 
-import           Solar.Data.KV as K
 import qualified Data.Typeable as T
 import qualified Data.Dynamic  as D
 import qualified Data.Map      as Map
@@ -12,7 +11,4 @@ import qualified Data.Map      as Map
 -- pools.
 newtype Context = Context {
         unwrapContext :: Map.Map T.TypeRep D.Dynamic
-    }
-newtype TaggedIdentifier n r c d c' = TaggedIdentifier
-    { untagIdentifier :: KVIdentifier n
     }
