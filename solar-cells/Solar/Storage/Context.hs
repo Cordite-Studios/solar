@@ -41,7 +41,11 @@ noContext = Context Map.empty
 -- Note: Types are their own record and inserting the
 -- same type twice will not preserve the old value of
 -- that type.
-addToContext :: (T.Typeable t) => Context -> t -> Context
+addToContext    :: (T.Typeable t)
+                => Context -- ^ The old context
+                -> t -- ^ The new value
+                -> Context -- ^ The resulting value added to the context
+
 addToContext c t = Context $ Map.insert (T.typeOf t) (D.toDyn t) (unwrapContext c)
 {-# INLINABLE addToContext #-}
 
@@ -52,7 +56,12 @@ infixl 7 ~+=:
 c ~+=: t = addToContext c t
 {-# INLINABLE (~+=:) #-}
 
-contextWrap' :: (T.Typeable k) => k -> Context -> (k -> a) -> a -> a
+contextWrap'    :: (T.Typeable k)
+                => k -- ^ The type of this value
+                -> Context -- ^ The context to be searched
+                -> (k -> a) -- ^ What to execute if found
+                -> a -- ^ Default if not found
+                -> a -- ^ Resulting action
 contextWrap' k c f df =
     case (Map.lookup key (unwrapContext c)) of
         Nothing -> df

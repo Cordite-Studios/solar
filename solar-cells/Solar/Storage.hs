@@ -22,7 +22,6 @@ module Solar.Storage
     , runU
     -- * Re-exports
     , R.tell
-    , lift
     )
 where
 
@@ -34,4 +33,3 @@ import Solar.Storage.Class
 import Solar.Storage.Context
 
 import           Control.Monad.Trans.RWS as R (tell)
-import           Control.Monad.Trans.Class (lift)
