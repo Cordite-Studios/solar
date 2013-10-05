@@ -103,20 +103,21 @@ class StorageIndexable n r c d c' k v where
                         (_, c2) <- sfcPut s c1 nkv
                         return c2
 
-    sfcGetByIndex   :: (IndexNamespace n,StorageFC n r c (KVIndex d c' k v) KVNoCache m a, Ord n, Show v, Ord v)
+    sfcGetByIndex   :: (IndexNamespace n,StorageFC n r c (KVIndex d c' k v) KVNoCache m a, Ord n, Show k, Ord v)
                     => a
                     -> Context
+                    -> k
                     -> v
                     -> m ([TaggedIdentifier n r c (d n r c) (c' n r c)], Context)
-    sfcGetByIndex s c k = do
+    sfcGetByIndex s c k v = do
         let i = KVIdentifier (getIxNS :: n) (T.pack.show $ k)
-        (v, c1) <- sfcGet s c i
-        case v of
+        (v', c1) <- sfcGet s c i
+        case v' of
             Nothing -> return ([], c1)
             Just (kv :: KVIndex' n r c d c' k v) -> do
                 let tm = indexValues.content $ kv
                     om = untagMap tm
-                case M.lookup k om of
+                case M.lookup v om of
                     Nothing -> return ([], c1)
                     Just os -> do
                         let ls = S.toList os
