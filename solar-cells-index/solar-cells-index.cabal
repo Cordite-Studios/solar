@@ -51,7 +51,7 @@ library
   exposed-modules:     Solar.Storage.Index
   
   -- Modules included in this library but not exported.
-  -- other-modules:       
+  other-modules:       Solar.Storage.Fingerprint
   
   -- LANGUAGE extensions used by modules in this package.
   -- other-extensions:    
@@ -63,6 +63,9 @@ library
                      , solar-cells >= 0.1 && < 0.2
                      , transformers
                      , text
+                     , bytestring >= 0.9
+                     , cryptohash
+                     , base64-bytestring
   
   -- Directories containing source files.
   -- hs-source-dirs:      

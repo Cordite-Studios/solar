@@ -21,6 +21,7 @@ import           Solar.Storage
 import           Solar.Storage.Context
 import           Control.Monad.Trans.RWS as R
 import           Control.Monad.Trans.Class(lift)
+import           Solar.Storage.Fingerprint
 
 
 newtype TaggedMap n r c d c' v = TaggedMap
@@ -60,7 +61,7 @@ class (Ord k, Ord v) => KVIndexable n r c d c' k v where
     -- | Provides the result pairs for index values
     indexResults :: KV n r c d c' -> [(k, v)]
 
-class StorageIndexable n r c d c' k v where
+class (Typeable3 d, Typeable3 c', Typeable n, Typeable r, Typeable c) => StorageIndexable n r c d c' k v where
     -- | Adds an index to the context for an identifier
     sfcAddIndex :: (IndexNamespace n, StorageFC n r c (KVIndex d c' k v) KVNoCache m a, Ord n, Ord k, Ord v, Show k)
                 => a -- ^ The current data structure in question
@@ -73,7 +74,8 @@ class StorageIndexable n r c d c' k v where
                 -- ^ The monadic action to take where the index
                 -- value is applied 
     sfcAddIndex s c kv' k v = do
-        let i = KVIdentifier (getIxNS :: n) (T.pack.show $ k)
+        let ky = (makeIndexKey k (typeOf (undefined :: KV n r c d c')))
+            i = KVIdentifier (getIxNS :: n) ky
             kvi = identifier.meta $ kv'
         (v', c1) <- sfcGet s c i
         case v' of
@@ -110,7 +112,8 @@ class StorageIndexable n r c d c' k v where
                     -> v
                     -> m ([TaggedIdentifier n r c (d n r c) (c' n r c)], Context)
     sfcGetByIndex s c k v = do
-        let i = KVIdentifier (getIxNS :: n) (T.pack.show $ k)
+        let ky = (makeIndexKey k (typeOf (undefined :: KV n r c d c')))
+            i = KVIdentifier (getIxNS :: n) ky
         (v', c1) <- sfcGet s c i
         case v' of
             Nothing -> return ([], c1)
