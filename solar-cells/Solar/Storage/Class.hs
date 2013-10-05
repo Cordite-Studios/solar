@@ -2,7 +2,9 @@
 {- |
 Has all the type classes which are used in solar cells
 -}
-module Solar.Storage.Class where
+module Solar.Storage.Class
+    (StorageFC(..))
+where
 
 import           Solar.Data.KV as K
 import           Solar.Storage.Types

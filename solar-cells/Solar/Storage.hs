@@ -32,4 +32,4 @@ import Solar.Storage.Runners
 import Solar.Storage.Class
 import Solar.Storage.Context
 
-import           Control.Monad.Trans.RWS as R (tell)
+import Control.Monad.Trans.RWS as R (tell)

@@ -1,3 +1,4 @@
+{-# LANGUAGE FlexibleContexts #-}
 {- |
 Provides the primary functons for the storage system
 -}
@@ -52,3 +53,4 @@ delSF i = do
     (v, c') <- lift $ sfcDel s c i
     put c'
     return v
+

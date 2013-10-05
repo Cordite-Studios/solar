@@ -14,11 +14,13 @@ module Solar.Data.KV
     , invalidate
     , KVDirection(..)
     , TaggedIdentifier(..)
+    , emptyMeta
     )
     where
 
 import Data.Text
 import Data.Time.Clock (UTCTime(..))
+import Data.Time.Calendar
 import Data.Typeable
 import Data.Generics as D
 import GHC.Generics as G
@@ -33,7 +35,7 @@ data KVIdentifier n = KVIdentifier
     -- ^ Namespace enumeration for where this belongs
     , key       :: !Text
     -- ^ Textual name of the key that can be looked up
-    } deriving (Show, Read, Typeable, Data, G.Generic)
+    } deriving (Show, Read, Typeable, Data, G.Generic, Eq, Ord)
 
 data KVLink n r c = KVLink
     { linkIdentifier :: !(KVIdentifier n)
@@ -48,7 +50,7 @@ data KVLink n r c = KVLink
     -- ^ When this link was added
     , linkInvalid    :: !Bool
     -- ^ Invalidation flag
-    } deriving (Show, Read, Typeable, Data, G.Generic)
+    } deriving (Show, Read, Typeable, Data, G.Generic, Eq, Ord)
 
 data KVMeta namespace relations classes = KVMeta
     { identifier            :: !(KVIdentifier namespace)
@@ -65,7 +67,7 @@ data KVMeta namespace relations classes = KVMeta
     -- ^ When this entity was created
     , invalid               :: !Bool
     -- ^ Invalidation flag
-    } deriving (Show, Read, Typeable, Data, G.Generic)
+    } deriving (Show, Read, Typeable, Data, G.Generic, Eq, Ord)
 
 data KV namespace relations classes datas cache = KV
     { meta          :: !(KVMeta namespace relations classes)
@@ -85,6 +87,12 @@ data KVNoCache n r c = KVNoCache
 newtype TaggedIdentifier n r c d c' = TaggedIdentifier
     { untagIdentifier :: KVIdentifier n
     }
+
+emptyMeta :: KVIdentifier n -> KVMeta n r c
+emptyMeta i = KVMeta i [] [] emptyTime emptyTime emptyTime False
+
+emptyTime :: UTCTime
+emptyTime = UTCTime (fromGregorian 0 0 0) 0
 
 -- | Gives a typed 'Nothing' of 'KVNoCache'
 kvNoCache :: (Maybe (KVNoCache n r c))
