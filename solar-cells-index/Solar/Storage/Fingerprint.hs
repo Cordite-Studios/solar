@@ -16,6 +16,6 @@ makeIndexKey k t = f
 		trb = E.encodeUtf8 tr
 		trh = MD5.hash trb
 		tre = B64.encode trh
-		trt = B.take 16 tre
+		trt = B.take 8 tre
 		trd = E.decodeUtf8 trt
 		f = T.concat [sk, "-", trd]
