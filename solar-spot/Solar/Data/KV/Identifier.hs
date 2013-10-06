@@ -3,10 +3,12 @@
 {-# LANGUAGE DefaultSignatures #-}
 module Solar.Data.KV.Identifier where
 
-import Data.Text
+import Data.Text as T
 import GHC.Generics as G
 import Data.Typeable
 import Data.Generics as D
+
+import Data.Monoid
 
 data KVIdentifier n = KVIdentifier
     { namespace :: !n
@@ -18,3 +20,13 @@ data KVIdentifier n = KVIdentifier
 newtype TaggedIdentifier n r c d c' = TaggedIdentifier
     { untagIdentifier :: KVIdentifier n
     }
+
+instance (Monoid n) => Monoid (KVIdentifier n) where
+	mempty = KVIdentifier mempty T.empty
+	mappend (KVIdentifier n k) (KVIdentifier n' k') =
+		KVIdentifier (mappend n n') pick
+		where pick
+			| k  == T.empty = k'
+			| k' == T.empty = k
+			| otherwise = k'
+
