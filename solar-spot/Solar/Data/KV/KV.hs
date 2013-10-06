@@ -34,4 +34,4 @@ instance (Typeable n, Typeable r, Typeable c, Typeable3 d, Typeable3 c') =>
         `mkAppTy` typeOf (undefined :: r)
         `mkAppTy` typeOf (undefined :: c)
         `mkAppTy` typeOf (undefined :: d n r c)
-        `mkAppTy` typeOf (undefined :: c' n r c)  
+        `mkAppTy` typeOf (undefined :: c' n r c)

@@ -44,4 +44,4 @@ instance (Ord n, Ord r, Ord c, Monoid n) => Monoid (KVMeta n r c) where
             lm''    = mappend lm lm'
             lmc''   = mappend lmc lmc'
             ca''    = mappend ca ca'
-            v''     = or [v, v'] 
+            v''     = or [v, v']

@@ -29,4 +29,3 @@ instance (Monoid n) => Monoid (KVIdentifier n) where
 			| k  == T.empty = k'
 			| k' == T.empty = k
 			| otherwise = k'
-
