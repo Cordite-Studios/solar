@@ -50,10 +50,14 @@ library
   -- Modules exported by the library.
   exposed-modules:     Solar.Data.KV
                      , Solar.Data.Graph.Direction
+                     , Solar.Data.KV.Utilities
                       
   
   -- Modules included in this library but not exported.
-  -- other-modules:       
+  other-modules:       Solar.Data.KV.Identifier
+                     , Solar.Data.KV.Link
+                     , Solar.Data.KV.Meta
+                     , Solar.Data.KV.KV
   
   -- LANGUAGE extensions used by modules in this package.
   -- other-extensions:    
