@@ -69,6 +69,7 @@ library
                      , text
                      , syb
                      , ghc-prim
+                     , containers
   
   -- Directories containing source files.
   -- hs-source-dirs:      

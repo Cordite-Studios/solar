@@ -10,6 +10,7 @@ import Data.Typeable
 import Data.Generics as D
 import GHC.Generics as G
 import Solar.Data.KV.Meta
+import Solar.Data.KV.Identifier
 
 
 data KV namespace relations classes datas cache = KV
@@ -35,3 +36,6 @@ instance (Typeable n, Typeable r, Typeable c, Typeable3 d, Typeable3 c') =>
         `mkAppTy` typeOf (undefined :: c)
         `mkAppTy` typeOf (undefined :: d n r c)
         `mkAppTy` typeOf (undefined :: c' n r c)
+
+getTagged :: KV n r c d c' -> TaggedIdentifier n r c (d n r c) (c' n r c)
+getTagged kv = TaggedIdentifier $ identifier.meta $ kv

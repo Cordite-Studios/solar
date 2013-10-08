@@ -12,16 +12,16 @@ import Solar.Data.KV.Link
 import Data.Time.Clock (UTCTime(..))
 import Data.Time.Format()
 
-import Data.List
+import qualified Data.Set as S
 import Data.Monoid
 import Solar.Data.KV.Utilities()
 
-data KVMeta namespace relations classes = KVMeta
-    { identifier            :: !(KVIdentifier namespace)
+data KVMeta n r c = KVMeta
+    { identifier            :: !(KVIdentifier n)
     -- ^ Identifier for this entity
-    , classes               :: ![classes]
+    , classes               :: !(S.Set c)
     -- ^ The classifications for this entity
-    , relations             :: ![KVLink namespace relations classes]
+    , relations             :: !(S.Set (KVLink n r c))
     -- ^ Links that this entity has with others
     , lastModified          :: !UTCTime
     -- ^ Modification date for the entire data element
@@ -34,13 +34,13 @@ data KVMeta namespace relations classes = KVMeta
     } deriving (Show, Read, Typeable, Data, G.Generic, Eq, Ord)
 
 instance (Ord n, Ord r, Ord c, Monoid n) => Monoid (KVMeta n r c) where
-    mempty = KVMeta mempty [] [] mempty mempty mempty False
+    mempty = KVMeta mempty mempty mempty mempty mempty mempty False
     mappend (KVMeta i c r lm lmc ca v) (KVMeta i' c' r' lm' lmc' ca' v') =
         KVMeta i'' c'' r'' lm'' lmc'' ca'' v''
         where
             i''     = mappend i i'
-            c''     = nub.sort $ union c c'
-            r''     = nub.sort $ union r r'
+            c''     = mappend c c'
+            r''     = mappend r r'
             lm''    = mappend lm lm'
             lmc''   = mappend lmc lmc'
             ca''    = mappend ca ca'

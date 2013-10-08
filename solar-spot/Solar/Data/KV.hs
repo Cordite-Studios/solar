@@ -13,6 +13,7 @@ module Solar.Data.KV
     , invalidate
     , KVDirection(..)
     , TaggedIdentifier(..)
+    , getTagged
     )
     where
 
