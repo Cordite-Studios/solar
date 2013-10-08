@@ -4,6 +4,7 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE FlexibleContexts#-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE FunctionalDependencies #-}
 {- |
 Holds the basic types for a built in indexing feature, built on
 the primitives that the user implements.
@@ -22,6 +23,8 @@ import           Solar.Storage.Context
 import           Control.Monad.Trans.RWS as R
 import           Control.Monad.Trans.Class(lift)
 import           Solar.Storage.Fingerprint
+import           Control.Monad(forM_)
+import           Data.Foldable(foldrM)
 
 
 newtype TaggedMap n r c d c' v = TaggedMap
@@ -56,12 +59,9 @@ class IndexNamespace a where
     -- | Constant get function to be used when accessing indexes.
     getIxNS :: a
 
--- | Adds indexing features to the 'KV' kinds
-class (Ord k, Ord v) => KVIndexable n r c d c' k v where
-    -- | Provides the result pairs for index values
-    indexResults :: KV n r c d c' -> [(k, v)]
 
-class (Typeable3 d, Typeable3 c', Typeable n, Typeable r, Typeable c) => StorageIndexable n r c d c' k v where
+
+class (Typeable3 d, Typeable3 c', Typeable n, Typeable r, Typeable c, Ord n, Ord r, Ord c, Monoid n) => StorageIndexable n r c d c' k v where
     -- | Adds an index to the context for an identifier
     sfcAddIndex :: (IndexNamespace n, StorageFC n r c (KVIndex d c' k v) KVNoCache m a, Ord n, Ord k, Ord v, Show k)
                 => a -- ^ The current data structure in question
@@ -82,7 +82,7 @@ class (Typeable3 d, Typeable3 c', Typeable n, Typeable r, Typeable c) => Storage
             Nothing -> do
                 let mp = TaggedMap $ M.insert v (S.singleton kvi) M.empty
                     mp :: TaggedMap n r c (d n r c) (c' n r c) v
-                    kv = KV (emptyMeta i) (KVIndex k mp) kvNoCache
+                    kv = KV (mempty {identifier = i}) (KVIndex k mp) kvNoCache
                     kv :: KVIndex' n r c d c' k v
                 (_, c2) <- sfcPut s c1 kv
                 return c2
@@ -129,22 +129,32 @@ class (Typeable3 d, Typeable3 c', Typeable n, Typeable r, Typeable c) => Storage
             tagIt :: KVIdentifier n -> TaggedIdentifier n r c (d n r c) (c' n r c)
             tagIt i = TaggedIdentifier i
 
+-- | Adds indexing features to the 'KV' kinds
+class (Ord k, Ord v, Show k) => KVIndexable n r c d c' k v | k -> v where
+    -- | Provides the result pairs for index values
+    indexResults :: KV n r c d c' -> [(k, v)]
+    indexAdd    :: (StorageFC n r c (KVIndex d c' k v) KVNoCache m a, StorageIndexable n r c d c' k v, IndexNamespace n, Ord n, Monoid n, Ord c)
+                => a
+                -> Context
+                -> k
+                -> KV n r c d c'
+                -> m (Context)
+    indexAdd a c _ kv = do
+        let d = indexResults kv
+            d :: [(k, v)]
+        foldrM f c d
+        where
+            f (k, v) c = sfcAddIndex a c kv k v
 
--- The below function is ambiguous on the k and v, since we have no way currently
--- of specifying all the types that may appear.
--- -- | Takes an entity and stores indexes for it later.
--- indexSF     :: (StorageFC n r c d c' m a, StorageFC n r c (KVIndex d c' k v) KVNoCache m a, KVIndexable n r c d c' k v, IndexNamespace n, Monoid b, Ord n, StorageIndexable n r c d c' k v)
---             => KV n r c d c' -- ^ 'KV' to apply indexes for
---             -> RWST a b Context m ()
---             -- ^ Monadic action that includes the results of all
---             -- indexs supplied by 'KVIndexable' instances.
--- indexSF kv = mapM_ r res
---     where
---         res :: [(k, v)]
---         res = indexResults kv
---         r :: (k, v) -> RWST a b Context m ()
---         r (k, v) = do
---             c <- get
---             s <- ask
---             c' <- lift $ sfcAddIndex s c kv k v
---             put c'
+-- | A typed template for running indexes. These ought to be made
+-- for their own key types, like saying
+-- @indexMyType = indexSF' (undefined :: MyType)@
+indexSF'    :: (StorageFC n r c d c' m a, StorageFC n r c (KVIndex d c' k v) KVNoCache m a, KVIndexable n r c d c' k v, IndexNamespace n, Monoid b, Ord n, StorageIndexable n r c d c' k v, Monoid n, Ord c)
+            => k
+            -> KV n r c d c'
+            -> RWST a b Context m ()
+indexSF' k kv = do
+    c <- get
+    s <- ask
+    c' <- lift $ indexAdd s c k kv
+    put c'
