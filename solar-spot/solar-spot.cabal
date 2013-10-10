@@ -50,7 +50,6 @@ library
   -- Modules exported by the library.
   exposed-modules:     Solar.Data.KV
                      , Solar.Data.Graph.Direction
-                     , Solar.Data.KV.Utilities
                       
   
   -- Modules included in this library but not exported.
@@ -64,6 +63,7 @@ library
   
   -- Other library packages from which modules are imported.
   build-depends:       base >=4.6 && <4.7
+                     , solar-shared == 0.1.*
                      , old-locale
                      , time
                      , text

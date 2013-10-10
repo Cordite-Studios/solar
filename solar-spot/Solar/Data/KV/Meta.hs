@@ -14,7 +14,7 @@ import Data.Time.Format()
 
 import qualified Data.Set as S
 import Data.Monoid
-import Solar.Data.KV.Utilities()
+import Solar.Utility.Date()
 
 data KVMeta n r c = KVMeta
     { identifier            :: !(KVIdentifier n)

@@ -12,7 +12,7 @@ import Data.Monoid
 import qualified Data.Set as S
 
 import Solar.Data.KV.Identifier
-import Solar.Data.KV.Utilities()
+import Solar.Utility.Date()
 import Solar.Data.Graph.Direction
 
 data KVLink n r c = KVLink
